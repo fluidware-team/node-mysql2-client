@@ -151,4 +151,11 @@ export class DbClient {
     const res = await this.connection.run<ResultSetHeader>(sql, phs);
     return res.rows.affectedRows;
   }
+
+  async run(sql: string, phs?: (string | number | boolean)[]) {
+    if (!this.connection) {
+      throw new Error('no connection available');
+    }
+    return this.connection.execute(sql, phs);
+  }
 }
