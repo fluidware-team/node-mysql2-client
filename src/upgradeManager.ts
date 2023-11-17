@@ -23,11 +23,10 @@ export type UpgradeManagerConfig = {
 };
 
 export class UpgradeManager {
-  version_table: string;
-  client: DbClient;
-  logger: Logger;
-
-  _default_version_table = '_version';
+  private version_table: string;
+  private client: DbClient;
+  private logger: Logger;
+  private _default_version_table = '_version';
 
   constructor(opts?: UpgradeManagerConfig) {
     this.version_table = this._default_version_table + (opts?.version_table_suffix || '');
@@ -70,7 +69,7 @@ export class UpgradeManager {
     }
   }
 
-  async _checkDb(
+  private async _checkDb(
     currentVersion: number,
     targetVersion: number,
     onSchemaInit: (dbClient: DbClient) => Promise<void>,
@@ -106,31 +105,6 @@ export class UpgradeManager {
       await this.client.close();
     }
     return true;
-  }
-
-  async checkDb(
-    targetVersion: number,
-    onSchemaInit: () => Promise<void>,
-    onSchemaUpgrade: (dbClient: DbClient, from: number) => Promise<void>
-  ) {
-    await this.client.open();
-    let currentVersion = await this.loadCurrentVersion(targetVersion);
-    if (currentVersion === true) {
-      return true;
-    }
-    this.logger.info('Check db: currentVersion %s targetVersion %s', currentVersion, targetVersion);
-
-    if (currentVersion === -999) {
-      currentVersion = await this.createDb();
-      if (currentVersion < 0) {
-        await this.checkDb(targetVersion, onSchemaInit, onSchemaUpgrade);
-        return;
-      }
-    } else if (currentVersion < 0) {
-      this.logger.error('Db in initialization, exiting ');
-      process.exit(91);
-    }
-    return this._checkDb(currentVersion, targetVersion, onSchemaInit, onSchemaUpgrade);
   }
 
   private async getCurrentVersion(targetVersion: number) {
@@ -201,5 +175,30 @@ export class UpgradeManager {
   ) {
     await onUpgrade(this.client, fromVersion);
     await this.updateVersion(targetVersion);
+  }
+
+  async checkDb(
+    targetVersion: number,
+    onSchemaInit: () => Promise<void>,
+    onSchemaUpgrade: (dbClient: DbClient, from: number) => Promise<void>
+  ) {
+    await this.client.open();
+    let currentVersion = await this.loadCurrentVersion(targetVersion);
+    if (currentVersion === true) {
+      return true;
+    }
+    this.logger.info('Check db: currentVersion %s targetVersion %s', currentVersion, targetVersion);
+
+    if (currentVersion === -999) {
+      currentVersion = await this.createDb();
+      if (currentVersion < 0) {
+        await this.checkDb(targetVersion, onSchemaInit, onSchemaUpgrade);
+        return;
+      }
+    } else if (currentVersion < 0) {
+      this.logger.error('Db in initialization, exiting ');
+      process.exit(91);
+    }
+    return this._checkDb(currentVersion, targetVersion, onSchemaInit, onSchemaUpgrade);
   }
 }
