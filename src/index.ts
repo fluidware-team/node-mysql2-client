@@ -16,3 +16,4 @@
 
 export * from './config';
 export * from './dbClient';
+export * from './upgradeManager';
