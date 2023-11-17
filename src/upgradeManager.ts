@@ -150,7 +150,7 @@ export class UpgradeManager {
   }
 
   private async updateVersion(targetVersion: number) {
-    const sql = `update ${this.version_table} set value = $1`;
+    const sql = `update ${this.version_table} set value = ?`;
     await this.client.update(sql, [targetVersion]);
     await this.client.commit();
   }
