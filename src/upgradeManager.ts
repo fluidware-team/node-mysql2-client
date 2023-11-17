@@ -179,7 +179,7 @@ export class UpgradeManager {
 
   async checkDb(
     targetVersion: number,
-    onSchemaInit: () => Promise<void>,
+    onSchemaInit: (dbClient: DbClient) => Promise<void>,
     onSchemaUpgrade: (dbClient: DbClient, from: number) => Promise<void>
   ) {
     await this.client.open();
