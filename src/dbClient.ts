@@ -28,7 +28,7 @@ import { ConnectionOptions } from 'mysql2';
 interface ConnectionWrap extends Connection {
   run<T extends ResultSetHeader | ResultSetHeader[] | RowDataPacket[] | RowDataPacket[][] | ProcedureCallPacket>(
     sql: string,
-    phs?: (string | number | boolean)[]
+    phs?: (string | number | boolean | null)[]
   ): Promise<{
     rows: T;
     cols: FieldPacket[];
@@ -57,7 +57,7 @@ export class DbClient {
       T extends ResultSetHeader | ResultSetHeader[] | RowDataPacket[] | RowDataPacket[][] | ProcedureCallPacket
     >(
       sql: string,
-      phs?: (string | number | boolean)[]
+      phs?: (string | number | boolean | null)[]
     ): Promise<{ rows: T; cols: FieldPacket[] }> => {
       if (!this.connection) {
         throw new Error('run() called but no connection available');
@@ -111,7 +111,7 @@ export class DbClient {
     }
   }
 
-  async all(sql: string, phs?: (string | number | boolean)[]) {
+  async all(sql: string, phs?: (string | number | boolean | null)[]) {
     if (!this.connection) {
       throw new Error('no connection available');
     }
@@ -119,7 +119,7 @@ export class DbClient {
     return res.rows;
   }
 
-  async get(sql: string, phs?: (string | number | boolean)[]) {
+  async get(sql: string, phs?: (string | number | boolean | null)[]) {
     if (!this.connection) {
       throw new Error('no connection available');
     }
@@ -128,7 +128,7 @@ export class DbClient {
     return res.rows[0];
   }
 
-  async insert(sql: string, phs?: (string | number | boolean)[]) {
+  async insert(sql: string, phs?: (string | number | boolean | null)[]) {
     if (!this.connection) {
       throw new Error('no connection available');
     }
@@ -136,7 +136,7 @@ export class DbClient {
     return res.rows.insertId || res.rows.affectedRows;
   }
 
-  async update(sql: string, phs?: (string | number | boolean)[]) {
+  async update(sql: string, phs?: (string | number | boolean | null)[]) {
     if (!this.connection) {
       throw new Error('no connection available');
     }
@@ -144,7 +144,7 @@ export class DbClient {
     return res.rows.affectedRows;
   }
 
-  async delete(sql: string, phs?: (string | number | boolean)[]) {
+  async delete(sql: string, phs?: (string | number | boolean | null)[]) {
     if (!this.connection) {
       throw new Error('no connection available');
     }
@@ -152,7 +152,7 @@ export class DbClient {
     return res.rows.affectedRows;
   }
 
-  async run(sql: string, phs?: (string | number | boolean)[]) {
+  async run(sql: string, phs?: (string | number | boolean | null)[]) {
     if (!this.connection) {
       throw new Error('no connection available');
     }
