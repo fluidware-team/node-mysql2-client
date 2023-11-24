@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 
-export * from './config';
-export * from './dbClient';
-export * from './upgradeManager';
-export * from './utils';
+export function getDateAsUTCMysqlString(date: Date, mills = false) {
+  const year = date.getUTCFullYear();
+  const month = `${date.getUTCMonth() + 1}`.padStart(2, '0');
+  const day = `${date.getUTCDate()}`.padStart(2, '0');
+  const hours = `${date.getUTCHours()}`.padStart(2, '0');
+  const minutes = `${date.getUTCMinutes()}`.padStart(2, '0');
+  const seconds = `${date.getUTCSeconds()}`.padStart(2, '0');
+  const millisecond = mills ? '.' + `${date.getUTCMilliseconds()}`.padStart(3, '0') : '';
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}${millisecond}`;
+}

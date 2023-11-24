@@ -14,8 +14,53 @@
  * limitations under the License.
  */
 
-describe('fake test', () => {
-  it('should be super smart', () => {
-    expect(true).toBe(true);
+import { getDateAsUTCMysqlString } from '../src';
+
+describe('utils test', () => {
+  describe('getDateAsUTCMysqlString', () => {
+    const testsA = [
+      {
+        in: '2023-11-24T05:02:01Z',
+        out: '2023-11-24 05:02:01'
+      },
+      {
+        in: '2023-11-24T07:02:01+02:00',
+        out: '2023-11-24 05:02:01'
+      },
+      {
+        in: '2023-11-24T05:02:01.001Z',
+        out: '2023-11-24 05:02:01'
+      },
+      {
+        in: '2023-11-24T07:02:01.001+02:00',
+        out: '2023-11-24 05:02:01'
+      }
+    ];
+    for (const test of testsA) {
+      it(`should return correct string without ms (${test.in})`, () => {
+        const s = getDateAsUTCMysqlString(new Date(test.in));
+        expect(s).toBe(test.out);
+      });
+    }
+    const testsB = [
+      {
+        in: '2023-11-24T05:02:01.001Z',
+        out: '2023-11-24 05:02:01.001'
+      },
+      {
+        in: '2023-11-24T05:02:01.100Z',
+        out: '2023-11-24 05:02:01.100'
+      },
+      {
+        in: '2023-11-24T07:02:01.000+02:00',
+        out: '2023-11-24 05:02:01.000'
+      }
+    ];
+    for (const test of testsB) {
+      it(`should return correct string with ms (${test.in})`, () => {
+        const s = getDateAsUTCMysqlString(new Date(test.in), true);
+        expect(s).toBe(test.out);
+      });
+    }
   });
 });
