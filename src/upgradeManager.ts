@@ -47,10 +47,8 @@ export class UpgradeManager {
         return row.value;
       }
     } catch (e) {
-      // eslint-disable-next-line no-console
-      console.error(e);
-      this.logger.error('Failed to read current version, exiting. ', e.message);
-      process.exit(92);
+      this.logger.error(`Failed to read current version: ${e.message}`);
+      throw e;
     }
   }
 
@@ -63,8 +61,8 @@ export class UpgradeManager {
         await setTimeout(2000);
         return -1;
       } else {
-        this.logger.error('Unable to create %s table: [%s] %s', this.version_table, e.code, e.message);
-        process.exit(90);
+        this.logger.error(`Unable to create ${this.version_table} table: [${e.code}] ${e.message}`);
+        throw e;
       }
     }
   }
@@ -100,7 +98,7 @@ export class UpgradeManager {
       this.logger.error('\n');
       this.logger.error('\n');
       this.logger.error(e.stack);
-      process.exit(96);
+      throw e;
     } finally {
       await this.client.close();
     }
@@ -197,7 +195,7 @@ export class UpgradeManager {
       }
     } else if (currentVersion < 0) {
       this.logger.error('Db in initialization, exiting ');
-      process.exit(91);
+      throw new Error('Db in initialization, do not proceed');
     }
     return this._checkDb(currentVersion, targetVersion, onSchemaInit, onSchemaUpgrade);
   }
