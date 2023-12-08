@@ -111,6 +111,9 @@ export class UpgradeManager {
     let row;
     try {
       row = await this.client.get(sqlCheck);
+      if (!row) {
+        return false;
+      }
       this.logger.debug('Versions: %s vs %s', row.value, targetVersion);
       if (row.value === targetVersion) {
         this.logger.debug('versions are equal, rollback');

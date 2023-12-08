@@ -119,13 +119,14 @@ export class DbClient {
     return res.rows;
   }
 
-  async get(sql: string, phs?: (string | number | boolean | null)[]) {
+  async get(sql: string, phs?: (string | number | boolean | null)[]): Promise<RowDataPacket | null> {
     if (!this.connection) {
       throw new Error('no connection available');
     }
     const res = await this.connection.run<RowDataPacket[]>(sql, phs);
-    if (res.rows.length > 1) throw new Error('get returned more than one row');
-    return res.rows[0];
+    if (res.rows.length > 1) throw new Error('get() returned more than one row');
+    if (res.rows.length === 1) return res.rows[0];
+    return null;
   }
 
   async insert(sql: string, phs?: (string | number | boolean | null)[]) {
