@@ -37,7 +37,7 @@ interface ConnectionWrap extends Connection {
 
 export class DbClient {
   private connection?: ConnectionWrap;
-  private connectionOptions: ConnectionOptions;
+  private readonly connectionOptions: ConnectionOptions;
 
   constructor(connectionOptionsOrPrefix?: ConnectionOptions | string) {
     if (connectionOptionsOrPrefix) {
