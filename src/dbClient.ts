@@ -137,12 +137,12 @@ export class DbClient {
     return res.rows.insertId || res.rows.affectedRows;
   }
 
-  async update(sql: string, phs?: (string | number | boolean | null)[]) {
+  async update(sql: string, phs?: (string | number | boolean | null)[], returnChangedRows = false) {
     if (!this.connection) {
       throw new Error('no connection available');
     }
     const res = await this.connection.run<ResultSetHeader>(sql, phs);
-    return res.rows.affectedRows;
+    return returnChangedRows ? res.rows.changedRows : res.rows.affectedRows;
   }
 
   async delete(sql: string, phs?: (string | number | boolean | null)[]) {
