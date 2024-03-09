@@ -42,6 +42,7 @@ export function getMysqlConnectionOptions(prefix = ''): ConnectionOptions {
     const DB_HOST = EnvParse.envString(`FW_${prefix}DB_HOST`, 'localhost');
     const DB_PORT = EnvParse.envInt(`FW_${prefix}DB_PORT`, 3306);
     const DB_NAME = EnvParse.envString(`FW_${prefix}DB_NAME`, DB_USER);
+    // FW_${prefix}DB_CONN_OPTIONS: JSON string with connection options See https://github.com/mysqljs/mysql#connection-options for all possible options
     const DB_CONN_OPTIONS = EnvParse.envJSON(`FW_${prefix}DB_CONN_OPTIONS`, {});
 
     const dbPassword = getDbPassword(DB_PASSWORD_FILE, DB_PASSWORD);
@@ -53,10 +54,13 @@ export function getMysqlConnectionOptions(prefix = ''): ConnectionOptions {
       database: DB_NAME
     };
     if (Object.keys(DB_CONN_OPTIONS).length > 0) {
-      // See https://github.com/mysqljs/mysql#connection-options for all possible options
       Object.assign(dbOptions, DB_CONN_OPTIONS);
     }
     memoizedOptions[prefix] = dbOptions;
   }
   return memoizedOptions[prefix];
+}
+
+export function setMysqlConnectionOptions(prefix: string, options: ConnectionOptions) {
+  memoizedOptions[prefix] = options;
 }
