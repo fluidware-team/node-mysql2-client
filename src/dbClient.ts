@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import type { ConnectionOptions } from 'mysql2';
 import {
   createConnection,
   Connection,
@@ -23,7 +24,6 @@ import {
   FieldPacket
 } from 'mysql2/promise';
 import { getMysqlConnectionOptions, USE_READ_COMMITTED_ISOLATION } from './config';
-import { ConnectionOptions } from 'mysql2';
 
 interface ConnectionWrap extends Connection {
   run<T extends ResultSetHeader | ResultSetHeader[] | RowDataPacket[] | RowDataPacket[][] | ProcedureCallPacket>(

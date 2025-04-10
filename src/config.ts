@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
+import type { ConnectionOptions } from 'mysql2';
 import { EnvParse } from '@fluidware-it/saddlebag';
 import * as fs from 'fs';
-import { ConnectionOptions } from 'mysql2';
 
 export const USE_READ_COMMITTED_ISOLATION = EnvParse.envBool('FW_DB_USE_READ_COMMITTED_ISOLATION', false);
 
