@@ -40,7 +40,7 @@ export class UpgradeManager {
       if (row === false) {
         return -999;
       } else if (row === true) {
-        this.logger.info('Check db: same version %s', targetVersion);
+        this.logger.info(`Check db: same version ${targetVersion}`);
         await this.client.close();
         return true;
       } else if (row) {
@@ -84,7 +84,7 @@ export class UpgradeManager {
       }
       if (targetVersion > currentVersion) {
         await this.upgradeDb(currentVersion, targetVersion, onSchemaUpgrade);
-        this.logger.info('Db updated to ', targetVersion);
+        this.logger.info(`Db updated to ${targetVersion}`);
         return true;
       }
     } catch (e) {
@@ -92,7 +92,7 @@ export class UpgradeManager {
       this.logger.error('\n');
       this.logger.error(' !!!!!!!! FATAL ERROR !!!!!!!!');
       this.logger.error('\n');
-      this.logger.error('checkDb failed %s', e.message);
+      this.logger.error(`checkDb failed: ${e.message}`);
       this.logger.error('\n');
       this.logger.error(' !!!!!!!! FATAL ERROR !!!!!!!!');
       this.logger.error('\n');
@@ -114,7 +114,7 @@ export class UpgradeManager {
       if (!row) {
         return false;
       }
-      this.logger.debug('Versions: %s vs %s', row.value, targetVersion);
+      this.logger.debug(`Versions: ${row.value} vs ${targetVersion}`);
       if (row.value === targetVersion) {
         this.logger.debug('versions are equal, rollback');
         await this.client.rollback();
@@ -126,7 +126,7 @@ export class UpgradeManager {
       if (e.code === 'ER_NO_SUCH_TABLE') {
         return false;
       }
-      this.logger.error('Ooops: %s', e.message, e.code);
+      this.logger.error(`Failed to get current schema version: [${e.code}] ${e.message}`);
       throw e;
     }
   }
@@ -144,7 +144,7 @@ export class UpgradeManager {
       await this.client.insert(sqlInsertVersionZero);
       await this.client.get(`select value from ${this.version_table} for update`);
     } catch (e) {
-      this.logger.error('Unable to insert -1 version in %s table: [%s] %s', this.version_table, e.code, e.message);
+      this.logger.error(`Unable to insert -1 version in "${this.version_table} table: [${e.code}] ${e.message}`);
       throw e;
     }
     return 0;
