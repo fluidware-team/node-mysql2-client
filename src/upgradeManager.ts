@@ -41,7 +41,6 @@ export class UpgradeManager {
         return -999;
       } else if (row === true) {
         this.logger.info(`Check db: same version ${targetVersion}`);
-        await this.client.close();
         return true;
       } else if (row) {
         return row.value;
@@ -54,10 +53,9 @@ export class UpgradeManager {
 
   private async createDb() {
     try {
-      return this.createVersionTable();
+      return await this.createVersionTable();
     } catch (e) {
-      if (e.code === '23505') {
-        await this.client.close();
+      if (e.code === 'ER_TABLE_EXISTS_ERROR') {
         await setTimeout(2000);
         return -1;
       } else {
@@ -67,7 +65,7 @@ export class UpgradeManager {
     }
   }
 
-  private async _checkDb(
+  private async migrate(
     currentVersion: number,
     targetVersion: number,
     onSchemaInit: (dbClient: DbClient) => Promise<void>,
@@ -99,15 +97,12 @@ export class UpgradeManager {
       this.logger.error('\n');
       this.logger.error(e.stack);
       throw e;
-    } finally {
-      await this.client.close();
     }
     return true;
   }
 
   private async getCurrentVersion(targetVersion: number) {
     const sqlCheck = `select value from ${this.version_table} for update`;
-    await this.client.startTransaction();
     let row;
     try {
       row = await this.client.get(sqlCheck);
@@ -183,23 +178,46 @@ export class UpgradeManager {
     onSchemaInit: (dbClient: DbClient) => Promise<void>,
     onSchemaUpgrade: (dbClient: DbClient, from: number) => Promise<void>
   ) {
-    await this.client.open();
-    let currentVersion = await this.loadCurrentVersion(targetVersion);
-    if (currentVersion === true) {
-      return true;
-    }
-    this.logger.info(`Check db: currentVersion ${currentVersion} targetVersion ${targetVersion}`);
-
-    if (currentVersion === -999) {
-      currentVersion = await this.createDb();
-      if (currentVersion < 0) {
-        await this.checkDb(targetVersion, onSchemaInit, onSchemaUpgrade);
-        return;
+    let retriesCount = 0;
+    let done = false;
+    do {
+      const ret = await this._checkDb(targetVersion, onSchemaInit, onSchemaUpgrade);
+      if (ret >= 0) {
+        done = true;
       }
-    } else if (currentVersion < 0) {
-      this.logger.error('Db in initialization, exiting ');
-      throw new Error('Db in initialization, do not proceed');
+      if (ret < 0) {
+        retriesCount++;
+      }
+    } while (!done && retriesCount < 3);
+  }
+
+  private async _checkDb(
+    targetVersion: number,
+    onSchemaInit: (dbClient: DbClient) => Promise<void>,
+    onSchemaUpgrade: (dbClient: DbClient, from: number) => Promise<void>
+  ) {
+    try {
+      await this.client.open();
+      await this.client.startTransaction();
+      let currentVersion = await this.loadCurrentVersion(targetVersion);
+      if (currentVersion === true) {
+        return 0;
+      }
+      this.logger.info(`Check db: currentVersion ${currentVersion} targetVersion ${targetVersion}`);
+      if (currentVersion === -999) {
+        currentVersion = await this.createDb();
+        if (currentVersion < 0) {
+          return -1;
+        }
+      } else if (currentVersion < 0) {
+        this.logger.error('Db in initialization, exiting ');
+        throw new Error('Db in initialization, do not proceed');
+      }
+      await this.migrate(currentVersion, targetVersion, onSchemaInit, onSchemaUpgrade);
+      return 1;
+    } finally {
+      await this.client.rollback();
+      await this.client.close();
     }
-    return this._checkDb(currentVersion, targetVersion, onSchemaInit, onSchemaUpgrade);
   }
 }
