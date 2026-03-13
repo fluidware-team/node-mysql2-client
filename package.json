@@ -16,7 +16,8 @@
     "clean": "tsc --build --clean tsconfig.json tsconfig.esm.json tsconfig.esnext.json",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
-    "test": "jest",
+    "test": "FW_LOGGER_LEVEL=silent jest",
+    "test:debug": "jest",
     "preversion": "npm run lint && npm run test"
   },
   "engines": {
