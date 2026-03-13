@@ -178,7 +178,7 @@ export class UpgradeManager {
     await this.updateVersion(targetVersion);
   }
 
-  async checkDb(
+  public async checkDb(
     targetVersion: number,
     onSchemaInit: (dbClient: DbClient) => Promise<void>,
     onSchemaUpgrade: (dbClient: DbClient, from: number) => Promise<void>
@@ -188,7 +188,7 @@ export class UpgradeManager {
     if (currentVersion === true) {
       return true;
     }
-    this.logger.info('Check db: currentVersion %s targetVersion %s', currentVersion, targetVersion);
+    this.logger.info(`Check db: currentVersion ${currentVersion} targetVersion ${targetVersion}`);
 
     if (currentVersion === -999) {
       currentVersion = await this.createDb();

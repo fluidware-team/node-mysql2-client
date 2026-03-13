@@ -51,7 +51,7 @@ export class DbClient {
     }
   }
 
-  async open() {
+  public async open() {
     this.connection = (await createConnection(this.connectionOptions)) as ConnectionWrap;
     this.connection.run = async <
       T extends ResultSetHeader | ResultSetHeader[] | RowDataPacket[] | RowDataPacket[][] | ProcedureCallPacket
@@ -70,17 +70,17 @@ export class DbClient {
     };
   }
 
-  getConnection(): ConnectionWrap | undefined {
+  public getConnection(): ConnectionWrap | undefined {
     return this.connection;
   }
 
-  async close() {
+  public async close() {
     if (this.connection) {
       await this.connection.end();
     }
   }
 
-  async startTransaction() {
+  public async startTransaction() {
     if (!this.connection) {
       throw new Error('no connection available');
     }
@@ -90,7 +90,7 @@ export class DbClient {
     await this.connection.execute('SET AUTOCOMMIT=0');
   }
 
-  async commit(closeTransaction = true) {
+  public async commit(closeTransaction = true) {
     if (!this.connection) {
       throw new Error('no connection available');
     }
@@ -100,7 +100,7 @@ export class DbClient {
     }
   }
 
-  async rollback(closeTransaction = true) {
+  public async rollback(closeTransaction = true) {
     if (!this.connection) {
       throw new Error('no connection available');
     }
@@ -111,7 +111,7 @@ export class DbClient {
     }
   }
 
-  async all(sql: string, phs?: (string | number | boolean | null)[]) {
+  public async all(sql: string, phs?: (string | number | boolean | null)[]) {
     if (!this.connection) {
       throw new Error('no connection available');
     }
@@ -119,7 +119,7 @@ export class DbClient {
     return res.rows;
   }
 
-  async get(sql: string, phs?: (string | number | boolean | null)[]): Promise<RowDataPacket | null> {
+  public async get(sql: string, phs?: (string | number | boolean | null)[]): Promise<RowDataPacket | null> {
     if (!this.connection) {
       throw new Error('no connection available');
     }
@@ -129,7 +129,7 @@ export class DbClient {
     return null;
   }
 
-  async insert(sql: string, phs?: (string | number | boolean | null)[]) {
+  public async insert(sql: string, phs?: (string | number | boolean | null)[]) {
     if (!this.connection) {
       throw new Error('no connection available');
     }
@@ -137,7 +137,7 @@ export class DbClient {
     return res.rows.insertId || res.rows.affectedRows;
   }
 
-  async update(sql: string, phs?: (string | number | boolean | null)[], returnChangedRows = false) {
+  public async update(sql: string, phs?: (string | number | boolean | null)[], returnChangedRows = false) {
     if (!this.connection) {
       throw new Error('no connection available');
     }
@@ -145,7 +145,7 @@ export class DbClient {
     return returnChangedRows ? res.rows.changedRows : res.rows.affectedRows;
   }
 
-  async delete(sql: string, phs?: (string | number | boolean | null)[]) {
+  public async delete(sql: string, phs?: (string | number | boolean | null)[]) {
     if (!this.connection) {
       throw new Error('no connection available');
     }
@@ -153,7 +153,7 @@ export class DbClient {
     return res.rows.affectedRows;
   }
 
-  async run(sql: string, phs?: (string | number | boolean | null)[]) {
+  public async run(sql: string, phs?: (string | number | boolean | null)[]) {
     if (!this.connection) {
       throw new Error('no connection available');
     }
