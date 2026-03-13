@@ -13,12 +13,14 @@
   "scripts": {
     "prepack": "npm run compile",
     "compile": "npm run clean && tsc --build tsconfig.json tsconfig.esm.json tsconfig.esnext.json",
-    "clean": "tsc --build --clean tsconfig.json tsconfig.esm.json tsconfig.esnext.json",
+    "clean": "rm -rf build",
+    "env2doc:check": "npm run -s clean && npm run -s compile && env2doc -d -p build/src > .env2doc-check.tmp && diff .env2doc-check.tmp ENVIRONMENT.md",
+    "env2doc": "npm run -s compile && env2doc -d -p build/src > ENVIRONMENT.md",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "test": "FW_LOGGER_LEVEL=silent jest",
     "test:debug": "jest",
-    "preversion": "npm run lint && npm run test"
+    "preversion": "npm run -s env2doc:check && npm run -s lint && npm run -s test"
   },
   "engines": {
     "node": ">=18.4"
@@ -29,6 +31,7 @@
   },
   "devDependencies": {
     "@eslint/js": "9.39.4",
+    "@fluidware-it/env2doc": "^0.3.2",
     "@testcontainers/mariadb": "^11.12.0",
     "@types/jest": "30.0.0",
     "eslint": "9.39.4",
