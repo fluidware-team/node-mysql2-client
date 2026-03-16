@@ -68,3 +68,5 @@ typings/
 docs
 
 .nyc_output
+
+.env2doc-check.tmp
